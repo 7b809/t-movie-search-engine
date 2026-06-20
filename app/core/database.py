@@ -1,0 +1,11 @@
+from pymongo import MongoClient
+from app.core.config import MONGO_URL
+
+# Initialize Client Connection
+client = MongoClient(MONGO_URL)
+
+# Access database context
+db = client["t_movie_search_engine_db"]
+
+# Collection assignments
+favorites_collection = db["favorites"]

@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TMDB Search Engine — Premium Live Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg-main: #0b0f19;
+        --bg-surface: #131c2e;
+        --bg-card: #1e293b;
+        --border-color: #334155;
+        --accent-color: #0ea5e9;
+
+        /* ENHANCED PROFESSIONAL COLOR SPECTRUM FOR TEXT LABELS */
+        --text-main: #f8fafc;
+        --text-vibrant-cyan: #38bdf8;
+        --text-vibrant-amber: #fbbf24;
+        --text-readable-body: #cbd5e1;
+        --text-accent-muted: #94a3b8;
+      }
+
+      body {
+        background-color: var(--bg-main);
+        color: var(--text-main);
+        font-family: "Inter", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Navbar styling */
+      .navbar {
+        background-color: rgba(11, 15, 25, 0.8) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-color);
+      }
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.25rem;
+        letter-spacing: -0.5px;
+        color: var(--accent-color) !important;
+      }
+
+      /* Dashboard Hero Search Banner */
+      .search-hero {
+        background:
+          radial-gradient(
+            circle at top right,
+            rgba(14, 165, 233, 0.15),
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at bottom left,
+            rgba(30, 41, 59, 0.5),
+            transparent 50%
+          );
+        border-bottom: 1px solid var(--border-color);
+        padding: 5rem 0 4rem 0;
+      }
+      .hero-title {
+        font-weight: 800;
+        letter-spacing: -1px;
+        font-size: 2.5rem;
+      }
+      .hero-subtitle {
+        color: var(--text-readable-body);
+        font-weight: 400;
+        font-size: 1.1rem;
+      }
+
+      /* Form Control Overrides */
+      .form-glass {
+        background-color: rgba(30, 41, 59, 0.7) !important;
+        border: 1px solid var(--border-color) !important;
+        color: var(--text-main) !important;
+        border-radius: 8px !important;
+        padding: 0.75rem 1rem;
+        transition: all 0.2s ease;
+      }
+      .form-glass:focus {
+        border-color: var(--accent-color) !important;
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25) !important;
+      }
+      .input-group-glass-text {
+        background-color: rgba(30, 41, 59, 0.7) !important;
+        border: 1px solid var(--border-color) !important;
+        border-right: none !important;
+        color: var(--text-vibrant-cyan) !important;
+        border-radius: 8px 0 0 8px !important;
+      }
+      .input-group-glass-text + .form-glass {
+        border-left: none !important;
+        border-radius: 0 8px 8px 0 !important;
+      }
+      .btn-search {
+        background-color: var(--accent-color);
+        border: none;
+        font-weight: 600;
+        border-radius: 8px !important;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.2s ease;
+      }
+      .btn-search:hover:not(:disabled) {
+        background-color: #0284c7;
+        transform: translateY(-1px);
+      }
+
+      /* Custom Filter Row Styling */
+      .filter-pill-btn {
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid var(--border-color);
+        color: var(--text-readable-body);
+        padding: 0.4rem 1.2rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+      .filter-pill-btn:hover {
+        color: var(--text-main);
+        border-color: var(--text-vibrant-cyan);
+      }
+      .filter-pill-btn.active {
+        background-color: var(--accent-color) !important;
+        border-color: var(--accent-color) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+      }
+
+      /* Reset Action Button Custom Layout Styles */
+      .btn-reset-filters {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        color: #f87171;
+        padding: 0.4rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+      .btn-reset-filters:hover {
+        background: #ef4444;
+        color: #ffffff;
+        border-color: #ef4444;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+      }
+
+      /* Premium Card Grid Layout */
+      .movie-card {
+        background-color: var(--bg-surface);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      .movie-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(14, 165, 233, 0.4);
+        box-shadow:
+          0 20px 25px -5px rgba(0, 0, 0, 0.5),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      .poster-container {
+        position: relative;
+        background-color: var(--bg-main);
+        padding-top: 145%;
+        overflow: hidden;
+      }
+      .movie-poster {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+      }
+      .movie-card:hover .movie-poster {
+        transform: scale(1.04);
+      }
+      .no-poster {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(30, 41, 59, 0.4);
+        color: var(--text-accent-muted);
+      }
+
+      /* Glassmorphic Badges */
+      .badge-type {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 10;
+        padding: 6px 12px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        letter-spacing: 0.3px;
+        border-radius: 20px;
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .rating-badge {
+        background-color: rgba(250, 204, 21, 0.15);
+        color: var(--text-vibrant-amber);
+        border: 1px solid rgba(250, 204, 21, 0.3);
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+      }
+
+      /* Content Sizing */
+      .card-title-text {
+        font-weight: 600;
+        font-size: 1.05rem;
+        line-height: 1.4;
+        color: var(--text-main);
+      }
+      .overview-text {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 0.85rem;
+        color: var(--text-readable-body);
+        line-height: 1.5;
+      }
+      .btn-read-more {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--text-vibrant-cyan);
+        background: transparent;
+        border: none;
+        padding: 0;
+        text-align: left;
+        transition: color 0.2s ease;
+      }
+      .btn-read-more:hover {
+        color: #38bdf8;
+        text-decoration: underline !important;
+      }
+      .btn-save-favorite {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--text-vibrant-amber);
+        background: transparent;
+        border: none;
+        padding: 0;
+        transition: all 0.2s ease;
+      }
+      .btn-save-favorite:hover {
+        color: #f59e0b;
+        transform: scale(1.05);
+      }
+      .btn-save-favorite:disabled {
+        color: var(--text-accent-muted);
+        opacity: 0.6;
+      }
+      .results-title-section {
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+
+      /* PREMIUM LIGHT MODAL STYLING SYSTEM OVERRIDES */
+      .modal-glass-content {
+        background-color: rgba(255, 255, 255, 0.94) !important;
+        border: 1px solid rgba(15, 23, 42, 0.08) !important;
+        border-radius: 24px !important;
+        box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .modal-header-glass {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+        padding: 1.5rem 1.5rem 1rem 1.5rem !important;
+      }
+      .modal-body-glass {
+        padding: 1.5rem !important;
+      }
+      .modal-footer-glass {
+        border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+        padding: 1rem 1.5rem 1.5rem 1.5rem !important;
+      }
+      .modal-poster-view {
+        border-radius: 12px;
+        width: 100%;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+      .btn-close-glass {
+        filter: none !important;
+      }
+      .modal-light-title {
+        color: #0f172a !important;
+      }
+      .modal-light-heading {
+        color: #1e293b !important;
+      }
+      .modal-light-text {
+        color: #334155 !important;
+        font-weight: 400;
+      }
+      .badge-year-light {
+        background-color: rgba(15, 23, 42, 0.05) !important;
+        border: 1px solid rgba(15, 23, 42, 0.1) !important;
+        color: #1e293b !important;
+        font-weight: 600;
+      }
+
+      /* OTT Skeleton Placeholder Shimmer Animation */
+      @keyframes skeleton-shimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+      .skeleton-card {
+        background: linear-gradient(
+          90deg,
+          #131c2e 25%,
+          #1e293b 50%,
+          #131c2e 75%
+        );
+        background-size: 200% 100%;
+        animation: skeleton-shimmer 1.5s infinite linear;
+        border-radius: 16px;
+        height: 380px;
+      }
+      .fs-7 {
+        font-size: 0.8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-dark sticky-top">
+      <div class="container">
+        <a class="navbar-brand m-0" href="/">
+          <i class="fa-solid fa-circle-play me-2 text-info"></i>CineDash Engine
+        </a>
+        <div class="d-flex align-items-center gap-3">
+          <a href="/" class="text-decoration-none text-white fs-7 me-2"
+            ><i class="fa-solid fa-magnifying-glass me-1 text-info"></i>
+            Search</a
+          >
+          <a href="/favorites" class="text-decoration-none text-info fs-7 me-3"
+            ><i class="fa-solid fa-bookmark me-1 text-warning"></i> My
+            Favorites</a
+          >
+          <span
+            class="badge bg-dark border border-secondary text-info d-none d-sm-inline-block"
+            >v2.5 Live</span
+          >
+        </div>
+      </div>
+    </nav>
+
+    <div class="search-hero">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-xl-8 col-lg-10 text-center">
+            <h1 class="hero-title text-white mb-2">
+              Explore the Universe of Media
+            </h1>
+            <p class="hero-subtitle mb-4">
+              Real-time matching keys delivered on-the-fly with adaptive popups.
+            </p>
+
+            <form
+              id="searchForm"
+              class="row g-3 bg-dark p-3 rounded-4 border border-secondary shadow-lg"
+              onSubmit="return false;"
+            >
+              <div class="col-md-7">
+                <div class="input-group">
+                  <span class="input-group-text input-group-glass-text">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                  </span>
+                  <input
+                    type="text"
+                    class="form-control form-glass"
+                    id="searchQuery"
+                    placeholder="Start typing movie or show names..."
+                    required
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select form-glass" id="searchType">
+                  <option value="all" selected>All Content</option>
+                  <option value="movie">Movies</option>
+                  <option value="tv">TV Shows</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <button
+                  type="submit"
+                  class="btn btn-primary btn-search w-100"
+                  id="searchBtn"
+                >
+                  Discover
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container my-5">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-md-items-center gap-3 mb-4 pb-3 border-bottom border-secondary-subtle"
+      >
+        <div class="d-flex align-items-center gap-3">
+          <h3 id="resultsHeader" class="results-title-section text-white m-0">
+            Ready for lookup...
+          </h3>
+          <div
+            id="loadingSpinner"
+            class="spinner-border text-info d-none"
+            role="status"
+          >
+            <span class="visually-hidden">Fetching matrix page context...</span>
+          </div>
+        </div>
+
+        <div
+          id="filterControlsRow"
+          class="d-flex flex-wrap align-items-center gap-3 d-none"
+        >
+          <div class="btn-group" role="group" aria-label="Media Sub-filters">
+            <button
+              type="button"
+              class="filter-pill-btn active"
+              id="subFilterAll"
+              onclick="applySegmentFilter('all')"
+            >
+              All
+            </button>
+            <button
+              type="button"
+              class="filter-pill-btn ms-1"
+              id="subFilterMovie"
+              onclick="applySegmentFilter('movie')"
+            >
+              <i class="fa-solid fa-clapperboard me-1 text-info"></i>Movies
+            </button>
+            <button
+              type="button"
+              class="filter-pill-btn ms-1"
+              id="subFilterTv"
+              onclick="applySegmentFilter('tv')"
+            >
+              <i class="fa-solid fa-tv me-1 text-warning"></i>Series
+            </button>
+          </div>
+
+          <div>
+            <select
+              class="form-select form-glass py-1 px-2 fs-7 text-info"
+              id="clientSortSelect"
+              onchange="triggerCatalogUIRender()"
+              style="min-width: 140px"
+            >
+              <option value="default" selected>Default Order</option>
+              <option value="ratingDesc">Highest Rated ★</option>
+              <option value="yearDesc">Latest Released</option>
+              <option value="titleAsc">Title (A-Z)</option>
+            </select>
+          </div>
+
+          <div
+            class="text-light d-flex align-items-center gap-2 bg-surface border border-secondary rounded-3 px-2 py-1"
+          >
+            <label
+              for="ratingSliderFilter"
+              class="form-label text-info fs-7 m-0 text-nowrap"
+              >Min Rating:</label
+            >
+            <input
+              type="range"
+              class="form-range"
+              min="0"
+              max="9"
+              step="1"
+              value="0"
+              id="ratingSliderFilter"
+              oninput="updateSliderLabel(this.value)"
+              style="width: 70px"
+            />
+            <span
+              id="sliderValueBadge"
+              class="badge bg-dark border border-secondary text-warning fs-7"
+              >All</span
+            >
+          </div>
+
+          <div>
+            <button
+              type="button"
+              class="btn btn-reset-filters"
+              id="resetFiltersBtn"
+              onclick="resetAllFiltersEngine()"
+              title="Reset all search filters and sorting configurations"
+            >
+              <i class="fa-solid fa-arrow-rotate-left me-1"></i>Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4"
+        id="resultsGrid"
+      ></div>
+
+      <div
+        class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mt-1 d-none"
+        id="skeletonLoader"
+      >
+        <div class="col"><div class="skeleton-card"></div></div>
+        <div class="col"><div class="skeleton-card"></div></div>
+        <div class="col"><div class="skeleton-card"></div></div>
+        <div class="col"><div class="skeleton-card"></div></div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="mediaDetailsModal"
+      tabindex="-1"
+      aria-labelledby="mediaDetailsModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modal-glass-content">
+          <div class="modal-header modal-header-glass">
+            <div class="d-flex align-items-center gap-2">
+              <span id="modalMediaTypeBadge"></span>
+              <h4
+                class="modal-title modal-light-title fw-bold m-0"
+                id="mediaDetailsModalLabel"
+              >
+                Asset Title
+              </h4>
+            </div>
+            <button
+              type="button"
+              class="btn-close btn-close-glass"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body modal-body-glass">
+            <div class="row g-4">
+              <div class="col-md-4 text-center">
+                <div id="modalPosterContainer"></div>
+              </div>
+              <div class="col-md-8 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="badge badge-year-light py-2 px-3">
+                      <i class="fa-regular fa-calendar-check me-2 text-info"></i
+                      ><span id="modalReleaseYear">2026</span>
+                    </span>
+                    <span class="badge rating-badge py-2 px-3 fs-6">
+                      <i class="fa-solid fa-star me-2"></i
+                      ><span id="modalRatingValue">0.0</span>
+                    </span>
+                  </div>
+                  <h5 class="modal-light-heading fw-semibold mb-2">Overview</h5>
+                  <p
+                    id="modalOverviewText"
+                    class="modal-light-text fs-6 lh-base"
+                    style="white-space: pre-line"
+                  ></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer modal-footer-glass">
+            <button
+              type="button"
+              class="btn btn-secondary rounded-3 border-0 px-4"
+              data-bs-dismiss="modal"
+              style="
+                background-color: #0f172a;
+                color: #ffffff;
+                font-weight: 500;
+              "
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let currentQuery = "";
+      let currentType = "all";
+      let currentPage = 1;
+      let isLoading = false;
+      let isLastPage = false;
+      let debounceTimer = null;
+      let activeFetchAbortController = null;
+
+      // Active Filter Choices Store Matrix
+      let segmentTypeFilter = "all";
+      let activeMinRating = 0;
+
+      // Primary state storage mapping object indices
+      const loadedCatalogMemory = new Map();
+
+      const resultsGrid = document.getElementById("resultsGrid");
+      const resultsHeader = document.getElementById("resultsHeader");
+      const spinner = document.getElementById("loadingSpinner");
+      const skeletonLoader = document.getElementById("skeletonLoader");
+      const searchInput = document.getElementById("searchQuery");
+      const searchTypeSelect = document.getElementById("searchType");
+      const filterControlsRow = document.getElementById("filterControlsRow");
+      const clientSortSelect = document.getElementById("clientSortSelect");
+      const ratingSliderFilter = document.getElementById("ratingSliderFilter");
+
+      const detailsBootstrapModal = new bootstrap.Modal(
+        document.getElementById("mediaDetailsModal"),
+      );
+
+      async function executeCatalogQuery(loadMore = false) {
+        if (isLoading || (loadMore && isLastPage)) return;
+
+        isLoading = true;
+
+        if (!loadMore) {
+          currentPage = 1;
+          isLastPage = false;
+          resultsGrid.innerHTML = "";
+          loadedCatalogMemory.clear();
+          spinner.classList.remove("d-none");
+          resultsHeader.innerHTML = `<span class="text-readable-body fs-5 fw-normal">Querying active directory for</span> <span class="text-info">"${currentQuery}"</span>...`;
+          filterControlsRow.classList.add("d-none");
+
+          if (activeFetchAbortController) {
+            activeFetchAbortController.abort();
+          }
+          activeFetchAbortController = new AbortController();
+        } else {
+          skeletonLoader.classList.remove("d-none");
+        }
+
+        try {
+          const payload = {
+            query: currentQuery,
+            search_type: currentType,
+            page: currentPage,
+          };
+
+          // Using window.location.origin to point dynamically to the hosting environment
+          const response = await fetch(`${window.location.origin}/api/search`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            signal: loadMore ? null : activeFetchAbortController.signal,
+          });
+
+          if (!response.ok) throw new Error("Network boundary fault.");
+
+          const data = await response.json();
+
+          if (data.success && data.results.length > 0) {
+            if (!loadMore) {
+              resultsHeader.innerHTML = `Catalog Matches <span class="badge bg-secondary ms-2 opacity-70 fs-6 text-info">${data.total_results} items found</span>`;
+              filterControlsRow.classList.remove("d-none");
+            }
+
+            data.results.forEach((item) => {
+              const registrationKey = `${item.type}_${item.id}`;
+              if (!loadedCatalogMemory.has(registrationKey)) {
+                item.serverOrderIndex = loadedCatalogMemory.size;
+                loadedCatalogMemory.set(registrationKey, item);
+              }
+            });
+
+            triggerCatalogUIRender();
+
+            if (
+              data.results.length < 20 ||
+              currentPage * 20 >= data.total_results
+            ) {
+              isLastPage = true;
+            } else {
+              currentPage++;
+            }
+          } else {
+            if (!loadMore) {
+              resultsHeader.innerHTML = `No catalog index for "<span class="text-danger">${currentQuery}</span>"`;
+              filterControlsRow.classList.add("d-none");
+              isLastPage = true;
+            }
+          }
+        } catch (error) {
+          if (error.name === "AbortError") {
+            console.log("Superseded query transaction discarded successfully.");
+            return;
+          }
+          console.error(error);
+          if (!loadMore) {
+            resultsHeader.innerHTML = `<span class="text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Gateway execution fault.</span>`;
+          }
+        } finally {
+          if (
+            loadMore ||
+            !activeFetchAbortController ||
+            !activeFetchAbortController.signal.aborted
+          ) {
+            isLoading = false;
+            spinner.classList.add("d-none");
+            skeletonLoader.classList.add("d-none");
+          }
+        }
+      }
+
+      // Live processing computation to filter data inside memory array
+      function triggerCatalogUIRender() {
+        let itemsArray = Array.from(loadedCatalogMemory.values());
+
+        // 1. Filter: Segment Type Evaluation Handler (Movies vs Series Selector)
+        if (segmentTypeFilter !== "all") {
+          itemsArray = itemsArray.filter(
+            (item) => item.type === segmentTypeFilter,
+          );
+        }
+
+        // 2. Filter: Live Range Rating Slider Guard Evaluation
+        if (activeMinRating > 0) {
+          itemsArray = itemsArray.filter(
+            (item) => (item.rating || 0) >= activeMinRating,
+          );
+        }
+
+        // 3. Sorting Engine Strategy Multi-Condition Processing Block
+        const sortingCriteria = clientSortSelect.value;
+        if (sortingCriteria === "ratingDesc") {
+          itemsArray.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        } else if (sortingCriteria === "yearDesc") {
+          itemsArray.sort((a, b) => {
+            const yearA = a.release_date
+              ? parseInt(a.release_date.substring(0, 4))
+              : 0;
+            const yearB = b.release_date
+              ? parseInt(b.release_date.substring(0, 4))
+              : 0;
+            return yearB - yearA;
+          });
+        } else if (sortingCriteria === "titleAsc") {
+          itemsArray.sort((a, b) =>
+            (a.title || "").localeCompare(b.title || ""),
+          );
+        } else {
+          itemsArray.sort((a, b) => a.serverOrderIndex - b.serverOrderIndex);
+        }
+
+        resultsGrid.innerHTML = "";
+
+        if (itemsArray.length === 0) {
+          resultsGrid.innerHTML = `<div class="col-12 text-center my-4 py-4 text-warning border border-secondary border-dashed rounded-4"><i class="fa-solid fa-filter-circle-xmark fa-2x mb-2 opacity-70"></i><p class="m-0 fw-medium">No active memory objects match your current filter selections.</p></div>`;
+          return;
+        }
+
+        renderGridCards(itemsArray);
+      }
+
+      function renderGridCards(items) {
+        items.forEach((item) => {
+          const cardCol = document.createElement("div");
+          cardCol.className = "col";
+
+          const uniqueMemoryLookupKey = `${item.type}_${item.id}`;
+
+          const mediaTypeBadge =
+            item.type === "movie"
+              ? '<span class="badge badge-type text-info"><i class="fa-solid fa-clapperboard me-1 text-info"></i> Movie</span>'
+              : '<span class="badge badge-type text-warning"><i class="fa-solid fa-tv me-1 text-warning"></i> TV Show</span>';
+
+          const releaseYear = item.release_date
+            ? item.release_date.substring(0, 4)
+            : "—";
+          const rating = item.rating ? item.rating.toFixed(1) : "0.0";
+
+          let posterHTML = item.poster
+            ? `<img src="${item.poster}" class="movie-poster" alt="${item.title}" loading="lazy">`
+            : `<div class="no-poster"><i class="fa-solid fa-clapperboard fa-2x mb-2 opacity-50"></i><span class="small fw-semibold text-uppercase tracking-wider">No Poster</span></div>`;
+
+          cardCol.innerHTML = `
+            <div class="movie-card h-100 d-flex flex-column">
+              <div class="poster-container">
+                ${mediaTypeBadge}
+                ${posterHTML}
+              </div>
+              <div class="p-3 d-flex flex-column flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                  <h5 class="card-title-text text-truncate mb-0" title="${item.title}">${item.title}</h5>
+                  <span class="badge rating-badge flex-shrink-0"><i class="fa-solid fa-star me-1"></i>${rating}</span>
+                </div>
+                <div class="mb-2">
+                  <small class="text-info fw-medium"><i class="fa-regular fa-calendar-check me-1"></i>${releaseYear}</small>
+                </div>
+                <p class="overview-text mb-0 flex-grow-1">${item.overview || "No release summary details have been provided for this index item."}</p>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                  <button class="btn-read-more" onclick="launchDetailsPopup('${uniqueMemoryLookupKey}')">
+                    Read More <i class="fa-solid fa-angle-right ms-1 small"></i>
+                  </button>
+                  <button class="btn-save-favorite" onclick="saveToFavorites('${uniqueMemoryLookupKey}', this)" title="Save to Favorites">
+                    <i class="fa-regular fa-bookmark me-1"></i>Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+          resultsGrid.appendChild(cardCol);
+        });
+      }
+
+      // Action execution function to store selected item to favorites endpoint using window.location.origin
+      async function saveToFavorites(lookupKey, buttonElement) {
+        const item = loadedCatalogMemory.get(lookupKey);
+        if (!item) return;
+
+        const originalContent = buttonElement.innerHTML;
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i>Saving...`;
+
+        try {
+          const payload = {
+            id: item.id,
+            type: item.type,
+            title: item.title,
+            overview: item.overview || "",
+            rating: item.rating || 0.0,
+            release_date: item.release_date || "",
+            poster: item.poster || "",
+          };
+
+          const response = await fetch(
+            `${window.location.origin}/api/favorites`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          );
+
+          if (!response.ok)
+            throw new Error("Fault handling backend persistence connection.");
+
+          const data = await response.json();
+          if (data.success) {
+            buttonElement.innerHTML = `<i class="fa-solid fa-bookmark me-1 text-warning"></i>Saved`;
+          } else {
+            throw new Error(
+              "Failed validation schema context processing parameters.",
+            );
+          }
+        } catch (error) {
+          console.error("Save Favorite anomaly detected: ", error);
+          buttonElement.disabled = false;
+          buttonElement.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1 text-danger"></i>Retry`;
+        }
+      }
+
+      // Controller mapping configuration parameters directly into layout components
+      window.launchDetailsPopup = function (lookupKey) {
+        const item = loadedCatalogMemory.get(lookupKey);
+        if (!item) return;
+
+        document.getElementById("mediaDetailsModalLabel").textContent =
+          item.title;
+        document.getElementById("modalReleaseYear").textContent =
+          item.release_date ? item.release_date.substring(0, 4) : "—";
+        document.getElementById("modalRatingValue").textContent = item.rating
+          ? item.rating.toFixed(1)
+          : "0.0";
+        document.getElementById("modalOverviewText").textContent =
+          item.overview ||
+          "No release summary details have been provided for this index item.";
+
+        document.getElementById("modalMediaTypeBadge").innerHTML =
+          item.type === "movie"
+            ? '<span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1"><i class="fa-solid fa-clapperboard me-1"></i> Movie</span>'
+            : '<span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1"><i class="fa-solid fa-tv me-1"></i> TV Show</span>';
+
+        const imgTargetContainer = document.getElementById(
+          "modalPosterContainer",
+        );
+        if (item.poster) {
+          imgTargetContainer.innerHTML = `<img src="${item.poster}" class="modal-poster-view" alt="${item.title}">`;
+        } else {
+          imgTargetContainer.innerHTML = `
+            <div class="bg-dark rounded-3 d-flex flex-column align-items-center justify-content-center border border-secondary" style="height: 260px; color: var(--text-accent-muted);">
+              <i class="fa-solid fa-clapperboard fa-2x mb-2 opacity-40"></i>
+              <span class="small fw-semibold text-uppercase">No Poster</span>
+            </div>`;
+        }
+
+        detailsBootstrapModal.show();
+      };
+
+      // Client Segment Actions Trigger Method
+      window.applySegmentFilter = function (type) {
+        segmentTypeFilter = type;
+
+        document
+          .querySelectorAll(".filter-pill-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        if (type === "all")
+          document.getElementById("subFilterAll").classList.add("active");
+        if (type === "movie")
+          document.getElementById("subFilterMovie").classList.add("active");
+        if (type === "tv")
+          document.getElementById("subFilterTv").classList.add("active");
+
+        triggerCatalogUIRender();
+      };
+
+      // Realtime Rating Selection Engine Controller Hook
+      window.updateSliderLabel = function (val) {
+        activeMinRating = parseInt(val);
+        document.getElementById("sliderValueBadge").textContent =
+          val === "0" ? "All" : `${val}+ ★`;
+        triggerCatalogUIRender();
+      };
+
+      // NEW COMPREHENSIVE FILTER RESET CONTROL ENGINE STRATEGY FUNCTION
+      window.resetAllFiltersEngine = function () {
+        // Reset state memories
+        segmentTypeFilter = "all";
+        activeMinRating = 0;
+
+        // Restore Segment Pills UI Components Layer to default
+        document
+          .querySelectorAll(".filter-pill-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        document.getElementById("subFilterAll").classList.add("active");
+
+        // Restore Catalog Sort Select Configuration Values
+        clientSortSelect.value = "default";
+
+        // Reset Slider value and badge view context configurations
+        ratingSliderFilter.value = 0;
+        document.getElementById("sliderValueBadge").textContent = "All";
+
+        // Trigger Layout Render Pipelines refresh inside current execution stack context frame
+        triggerCatalogUIRender();
+      };
+
+      function handleLiveSearch() {
+        const inputQuery = searchInput.value.trim();
+        const inputType = searchTypeSelect.value;
+
+        if (!inputQuery) {
+          clearTimeout(debounceTimer);
+          currentQuery = "";
+          resultsGrid.innerHTML = "";
+          loadedCatalogMemory.clear();
+          resultsHeader.innerHTML = "Ready for lookup...";
+          filterControlsRow.classList.add("d-none");
+          return;
+        }
+
+        if (inputQuery === currentQuery && inputType === currentType) return;
+
+        clearTimeout(debounceTimer);
+
+        debounceTimer = setTimeout(() => {
+          currentQuery = inputQuery;
+          currentType = inputType;
+          executeCatalogQuery(false);
+        }, 400);
+      }
+
+      searchInput.addEventListener("input", handleLiveSearch);
+      searchTypeSelect.addEventListener("change", handleLiveSearch);
+
+      window.addEventListener("scroll", () => {
+        if (isLoading || isLastPage || !currentQuery) return;
+
+        if (
+          window.innerHeight + window.scrollY >=
+          document.documentElement.scrollHeight - 150
+        ) {
+          executeCatalogQuery(true);
+        }
+      });
+    </script>
+  </body>
+</html>
