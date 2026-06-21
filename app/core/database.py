@@ -5,7 +5,7 @@ from app.core.config import MONGO_URL
 client = MongoClient(MONGO_URL)
 
 # Access database context
-db = client["t_movie_search_engine_db"]
+db = client["flicks_search_engine_db"]
 
 # Collection assignments
 favorites_collection = db["favorites"]
