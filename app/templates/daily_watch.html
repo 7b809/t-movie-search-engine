@@ -188,6 +188,21 @@
         color: #f87171;
       }
 
+      /* NEW STYLE ADDED FOR COPY TITLE BUTTON ELEMENT */
+      .btn-copy-title {
+        font-size: 0.85rem;
+        color: var(--text-vibrant-cyan);
+        background: transparent;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+      .btn-copy-title:hover {
+        background-color: rgba(56, 189, 248, 0.15);
+        color: #38bdf8;
+      }
+
       /* Modals styling */
       .modal-glass-content {
         background-color: rgba(255, 255, 255, 0.95) !important;
@@ -457,6 +472,7 @@
           `Showing ${items.length} of ${masterDailyWatchList.length} total entries`;
       }
 
+      /* UPDATED METHOD: Includes clean quotes escaping + Copy Button rendering code */
       function renderDailyWatchCatalog(items) {
         dailyWatchGrid.innerHTML = "";
 
@@ -488,6 +504,10 @@
             ? `<img src="${item.poster}" class="movie-poster" alt="${item.title}" loading="lazy">`
             : `<div class="no-poster"><i class="fa-solid fa-clapperboard fa-2x mb-2 opacity-50"></i><span class="small fw-semibold text-uppercase tracking-wider">No Poster</span></div>`;
 
+          // Handle single quotes smoothly inside string literals
+          const sanitizedTitle = (item.title || "").replace(/'/g, "\\'");
+          const lookupKey = `${item.type}_${item.id}`;
+
           cardCol.innerHTML = `
             <div class="movie-card h-100 d-flex flex-column">
               <div class="poster-container">
@@ -504,12 +524,17 @@
                 </div>
                 <p class="overview-text mb-0 flex-grow-1">${item.overview || "No release summary details provided."}</p>
                 <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-20">
-                  <button class="btn-read-more" onclick="viewLocalDetails('${item.type}_${item.id}')">
+                  <button class="btn-read-more" onclick="viewLocalDetails('${lookupKey}')">
                     Read Details <i class="fa-solid fa-angle-right ms-1 small"></i>
                   </button>
-                  <button class="btn-remove-fav" onclick="removeLocalDailyItem('${item.type}', ${item.id})" title="Remove from Daily Watch">
-                    <i class="fa-solid fa-trash-can"></i>
-                  </button>
+                  <div class="d-flex align-items-center gap-1">
+                    <button class="btn-copy-title" onclick="copyMediaTitleToClipboard('${sanitizedTitle}', this)" title="Copy Title to Clipboard">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                    <button class="btn-remove-fav" onclick="removeLocalDailyItem('${item.type}', ${item.id})" title="Remove from Daily Watch">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -540,6 +565,36 @@
         calculateMetricsAndCounters(filtered);
         renderDailyWatchCatalog(filtered);
       }
+
+      /* NEW FUNCTION: Copy engine code containing status feedback toggle handling */
+      window.copyMediaTitleToClipboard = async function (
+        titleText,
+        buttonElement,
+      ) {
+        if (!navigator.clipboard) {
+          console.warn(
+            "Clipboard access API context rejected inside this framework structure.",
+          );
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(titleText);
+
+          const originalIcon = buttonElement.innerHTML;
+          buttonElement.className = "btn-copy-title text-success";
+          buttonElement.innerHTML = `<i class="fa-solid fa-check"></i>`;
+          buttonElement.disabled = true;
+
+          setTimeout(() => {
+            buttonElement.className = "btn-copy-title";
+            buttonElement.innerHTML = originalIcon;
+            buttonElement.disabled = false;
+          }, 1500);
+        } catch (err) {
+          console.error("Clipboard sync anomaly occurred: ", err);
+        }
+      };
 
       window.removeLocalDailyItem = async function (mediaType, itemId) {
         if (

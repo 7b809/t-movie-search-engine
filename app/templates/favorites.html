@@ -188,6 +188,21 @@
         color: #f87171;
       }
 
+      /* ENHANCED DESIGN VARIANT FOR COPY ENGINE TRIGGER BUTTON */
+      .btn-copy-title {
+        font-size: 0.85rem;
+        color: var(--text-vibrant-cyan);
+        background: transparent;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+      .btn-copy-title:hover {
+        background-color: rgba(56, 189, 248, 0.15);
+        color: #38bdf8;
+      }
+
       /* Modals styling */
       .modal-glass-content {
         background-color: rgba(255, 255, 255, 0.95) !important;
@@ -485,6 +500,11 @@
             ? `<img src="${item.poster}" class="movie-poster" alt="${item.title}" loading="lazy">`
             : `<div class="no-poster"><i class="fa-solid fa-clapperboard fa-2x mb-2 opacity-50"></i><span class="small fw-semibold text-uppercase tracking-wider">No Poster</span></div>`;
 
+          // MODIFICATION: Escaping single quotes in strings to avoid crashing JavaScript strings inside inline tags
+          const sanitizedTitle = (item.title || "").replace(/'/g, "\\'");
+          const lookupKey = `${item.type}_${item.id}`;
+
+          /* MODIFICATION: Injected .btn-copy-title into action alignment grid matrix wrapper block */
           cardCol.innerHTML = `
             <div class="movie-card h-100 d-flex flex-column">
               <div class="poster-container">
@@ -501,12 +521,17 @@
                 </div>
                 <p class="overview-text mb-0 flex-grow-1">${item.overview || "No release summary details provided."}</p>
                 <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-20">
-                  <button class="btn-read-more" onclick="viewLocalDetails('${item.type}_${item.id}')">
+                  <button class="btn-read-more" onclick="viewLocalDetails('${lookupKey}')">
                     Read Details <i class="fa-solid fa-angle-right ms-1 small"></i>
                   </button>
-                  <button class="btn-remove-fav" onclick="removeLocalFavorite('${item.type}', ${item.id})" title="Remove from Favorites">
-                    <i class="fa-solid fa-trash-can"></i>
-                  </button>
+                  <div class="d-flex align-items-center gap-1">
+                    <button class="btn-copy-title" onclick="copyMediaTitleToClipboard('${sanitizedTitle}', this)" title="Copy Title to Clipboard">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                    <button class="btn-remove-fav" onclick="removeLocalFavorite('${item.type}', ${item.id})" title="Remove from Favorites">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -537,6 +562,40 @@
         calculateMetricsAndCounters(filtered);
         renderFavoritesCatalog(filtered);
       }
+
+      // MODIFICATION: Asynchronous Engine Action Handler to copy string references to native Clipboard securely
+      window.copyMediaTitleToClipboard = async function (
+        titleText,
+        buttonElement,
+      ) {
+        if (!navigator.clipboard) {
+          console.warn(
+            "Clipboard API architecture not accessible or restricted inside this environment context.",
+          );
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(titleText);
+
+          // Flash dynamic state update indicator feedback window onto UI context
+          const originalIcon = buttonElement.innerHTML;
+          buttonElement.className = "btn-copy-title text-success";
+          buttonElement.innerHTML = `<i class="fa-solid fa-check"></i>`;
+          buttonElement.disabled = true;
+
+          setTimeout(() => {
+            buttonElement.className = "btn-copy-title";
+            buttonElement.innerHTML = originalIcon;
+            buttonElement.disabled = false;
+          }, 1500);
+        } catch (err) {
+          console.error(
+            "Clipboard routing pipeline execution failure occurred: ",
+            err,
+          );
+        }
+      };
 
       // Async removal sequence handling 404 cleanly
       window.removeLocalFavorite = async function (mediaType, itemId) {
