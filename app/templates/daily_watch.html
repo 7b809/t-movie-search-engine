@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Watch Dashboard — CineDash Premium</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg-main: #0b0f19;
+        --bg-surface: #131c2e;
+        --bg-card: #1e293b;
+        --border-color: #334155;
+        --accent-color: #fbbf24;
+        --info-color: #0ea5e9;
+
+        /* Colors spectrum */
+        --text-main: #f8fafc;
+        --text-vibrant-cyan: #38bdf8;
+        --text-vibrant-amber: #fbbf24;
+        --text-readable-body: #cbd5e1;
+        --text-accent-muted: #94a3b8;
+      }
+
+      body {
+        background-color: var(--bg-main);
+        color: var(--text-main);
+        font-family: "Inter", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Navbar styling */
+      .navbar {
+        background-color: rgba(11, 15, 25, 0.8) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-color);
+      }
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.25rem;
+        letter-spacing: -0.5px;
+        color: var(--info-color) !important;
+      }
+
+      /* Dashboard Metrics Cards */
+      .metric-card {
+        background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: transform 0.2s ease;
+      }
+      .metric-card:hover {
+        transform: translateY(-2px);
+      }
+
+      /* Premium Card Grid Layout */
+      .movie-card {
+        background-color: var(--bg-surface);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      .movie-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(250, 204, 21, 0.4);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+      }
+      .poster-container {
+        position: relative;
+        background-color: var(--bg-main);
+        padding-top: 145%;
+        overflow: hidden;
+      }
+      .movie-poster {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .no-poster {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(30, 41, 59, 0.4);
+        color: var(--text-accent-muted);
+      }
+
+      /* Glass Badges */
+      .badge-type {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 10;
+        padding: 6px 12px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        border-radius: 20px;
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .rating-badge {
+        background-color: rgba(250, 204, 21, 0.15);
+        color: var(--text-vibrant-amber);
+        border: 1px solid rgba(250, 204, 21, 0.3);
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+      }
+
+      .card-title-text {
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--text-main);
+      }
+      .overview-text {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 0.85rem;
+        color: var(--text-readable-body);
+        line-height: 1.5;
+        height: 3.8em;
+      }
+
+      /* Control Inputs */
+      .form-glass {
+        background-color: rgba(30, 41, 59, 0.7) !important;
+        border: 1px solid var(--border-color) !important;
+        color: var(--text-main) !important;
+        border-radius: 8px !important;
+        font-size: 0.85rem;
+      }
+      .form-glass:focus {
+        border-color: var(--text-vibrant-amber) !important;
+        box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.2) !important;
+      }
+
+      .btn-read-more {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--text-vibrant-cyan);
+        background: transparent;
+        border: none;
+        padding: 0;
+      }
+      .btn-read-more:hover {
+        text-decoration: underline !important;
+      }
+
+      .btn-remove-fav {
+        font-size: 0.85rem;
+        color: #ef4444;
+        background: transparent;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+      .btn-remove-fav:hover {
+        background-color: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+      }
+
+      /* Modals styling */
+      .modal-glass-content {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid rgba(15, 23, 42, 0.08) !important;
+        border-radius: 24px !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .modal-header-glass {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+        padding: 1.5rem !important;
+      }
+      .modal-body-glass {
+        padding: 1.5rem !important;
+      }
+      .modal-poster-view {
+        border-radius: 12px;
+        width: 100%;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+      .modal-light-title {
+        color: #0f172a !important;
+      }
+      .modal-light-heading {
+        color: #1e293b !important;
+      }
+      .modal-light-text {
+        color: #334155 !important;
+      }
+      .badge-year-light {
+        background-color: rgba(15, 23, 42, 0.05) !important;
+        color: #1e293b !important;
+        font-weight: 600;
+      }
+
+      .fs-7 {
+        font-size: 0.8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-dark sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="fa-solid fa-circle-play me-2 text-info"></i>CineDash Engine
+        </a>
+        <div class="d-flex align-items-center gap-3">
+          <a href="/" class="text-decoration-none text-readable-body fs-7"
+            ><i class="fa-solid fa-magnifying-glass me-1"></i> Search</a
+          >
+          <a
+            href="/favorites"
+            class="text-decoration-none text-readable-body fs-7"
+            ><i class="fa-solid fa-bookmark me-1"></i> My Favorites</a
+          >
+          <a
+            href="/daily-watch"
+            class="text-decoration-none text-warning fs-7 fw-semibold"
+            ><i class="fa-solid fa-calendar-day me-1"></i> Daily Watch</a
+          >
+          <span
+            class="badge bg-dark border border-secondary text-warning d-none d-sm-inline-block"
+            >Daily Rotation</span
+          >
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-5">
+      <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+          <h2 class="fw-bold tracking-tight text-white m-0">
+            <i class="fa-solid fa-calendar-day text-warning me-2"></i>Daily
+            Watch Catalog
+          </h2>
+          <p class="text-accent-muted fs-7 mt-1 m-0">
+            Manage your daily pipeline assets tracked directly within your
+            isolated MongoDB index structure.
+          </p>
+        </div>
+        <div class="col-md-6 mt-3 mt-md-0 d-flex justify-content-md-end gap-3">
+          <div class="metric-card d-flex align-items-center gap-3">
+            <div class="bg-info bg-opacity-10 p-2 rounded-3 text-info">
+              <i class="fa-solid fa-clapperboard fa-lg"></i>
+            </div>
+            <div>
+              <div class="fs-7 text-accent-muted lh-1">Movies</div>
+              <div class="fs-5 fw-bold text-white mt-1" id="movieCount">0</div>
+            </div>
+          </div>
+          <div class="metric-card d-flex align-items-center gap-3">
+            <div class="bg-warning bg-opacity-10 p-2 rounded-3 text-warning">
+              <i class="fa-solid fa-tv fa-lg"></i>
+            </div>
+            <div>
+              <div class="fs-7 text-accent-muted lh-1">TV Shows</div>
+              <div class="fs-5 fw-bold text-white mt-1" id="tvCount">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="alertBanner"
+        class="alert alert-danger d-none align-items-center mb-4"
+        role="alert"
+      >
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+        <div id="alertBannerText">An anomaly occurred.</div>
+      </div>
+
+      <div
+        class="bg-surface p-3 rounded-4 border border-secondary border-opacity-50 mb-5"
+      >
+        <div class="row g-3 align-items-center">
+          <div class="col-md-5">
+            <input
+              type="text"
+              class="form-control form-glass"
+              id="localFilterInput"
+              placeholder="Quick filter daily titles..."
+              oninput="processLocalCatalogFilter()"
+            />
+          </div>
+          <div class="col-md-3">
+            <select
+              class="form-select form-glass"
+              id="typeFilterSelect"
+              onchange="processLocalCatalogFilter()"
+            >
+              <option value="all" selected>All Types</option>
+              <option value="movie">Movies Only</option>
+              <option value="tv">TV Shows Only</option>
+            </select>
+          </div>
+          <div class="col-md-4 text-md-end">
+            <span class="fs-7 text-accent-muted" id="matchedCounterLabel"
+              >Showing 0 of 0 entries</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4"
+        id="dailyWatchGrid"
+      ></div>
+
+      <div id="dashboardLoader" class="text-center py-5">
+        <div class="spinner-border text-warning" role="status">
+          <span class="visually-hidden">Syncing daily indexes...</span>
+        </div>
+        <p class="text-accent-muted fs-7 mt-2">
+          Fetching records from MongoDB Daily Watch cluster...
+        </p>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="mediaDetailsModal"
+      tabindex="-1"
+      aria-labelledby="mediaDetailsModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modal-glass-content">
+          <div class="modal-header modal-header-glass">
+            <div class="d-flex align-items-center gap-2">
+              <span id="modalMediaTypeBadge"></span>
+              <h4
+                class="modal-title modal-light-title fw-bold m-0"
+                id="mediaDetailsModalLabel"
+              >
+                Asset Details
+              </h4>
+            </div>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body modal-body-glass">
+            <div class="row g-4">
+              <div class="col-md-4 text-center">
+                <div id="modalPosterContainer"></div>
+              </div>
+              <div class="col-md-8 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="badge badge-year-light py-2 px-3">
+                      <i class="fa-regular fa-calendar-check me-2 text-info"></i
+                      ><span id="modalReleaseYear">—</span>
+                    </span>
+                    <span class="badge rating-badge py-2 px-3 fs-6">
+                      <i class="fa-solid fa-star me-2"></i
+                      ><span id="modalRatingValue">0.0</span>
+                    </span>
+                  </div>
+                  <h5 class="modal-light-heading fw-semibold mb-2">Overview</h5>
+                  <p
+                    id="modalOverviewText"
+                    class="modal-light-text fs-6 lh-base"
+                  ></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer modal-footer-glass">
+            <button
+              type="button"
+              class="btn btn-secondary border-0 px-4"
+              data-bs-dismiss="modal"
+              style="background-color: #0f172a"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let masterDailyWatchList = [];
+      const dailyWatchGrid = document.getElementById("dailyWatchGrid");
+      const dashboardLoader = document.getElementById("dashboardLoader");
+      const alertBanner = document.getElementById("alertBanner");
+      const alertBannerText = document.getElementById("alertBannerText");
+      const detailsBootstrapModal = new bootstrap.Modal(
+        document.getElementById("mediaDetailsModal"),
+      );
+
+      async function syncDailyWatchDashboard() {
+        try {
+          const response = await fetch(
+            `${window.location.origin}/api/daily-watch`,
+          );
+          if (!response.ok)
+            throw new Error(
+              "Could not execute Daily Watch synchronization request.",
+            );
+
+          const data = await response.json();
+          if (data.success) {
+            masterDailyWatchList = data.results || [];
+            calculateMetricsAndCounters(masterDailyWatchList);
+            renderDailyWatchCatalog(masterDailyWatchList);
+          }
+        } catch (error) {
+          console.error("Daily Dashboard Sync Anomaly Encountered:", error);
+          dailyWatchGrid.innerHTML = `<div class="col-12 text-center text-danger my-5"><i class="fa-solid fa-triangle-exclamation fa-2x mb-2"></i><p>Failed to pull updates from daily tracking configuration data nodes.</p></div>`;
+        } finally {
+          dashboardLoader.classList.add("d-none");
+        }
+      }
+
+      function calculateMetricsAndCounters(items) {
+        const movies = items.filter((i) => i.type === "movie").length;
+        const tvShows = items.filter((i) => i.type === "tv").length;
+
+        document.getElementById("movieCount").textContent = movies;
+        document.getElementById("tvCount").textContent = tvShows;
+        document.getElementById("matchedCounterLabel").textContent =
+          `Showing ${items.length} of ${masterDailyWatchList.length} total entries`;
+      }
+
+      function renderDailyWatchCatalog(items) {
+        dailyWatchGrid.innerHTML = "";
+
+        if (items.length === 0) {
+          dailyWatchGrid.innerHTML = `
+            <div class="col-12 text-center my-5 py-5 text-accent-muted border border-secondary border-dashed rounded-4">
+              <i class="fa-regular fa-calendar fa-3x mb-3 text-warning opacity-50"></i>
+              <h5 class="fw-semibold text-white">No items found</h5>
+              <p class="fs-7 m-0">Your Daily Watch pipeline list is empty or doesn't match active filter criteria parameters.</p>
+            </div>`;
+          return;
+        }
+
+        items.forEach((item) => {
+          const cardCol = document.createElement("div");
+          cardCol.className = "col";
+
+          const mediaTypeBadge =
+            item.type === "movie"
+              ? '<span class="badge badge-type text-info"><i class="fa-solid fa-clapperboard me-1 text-info"></i> Movie</span>'
+              : '<span class="badge badge-type text-warning"><i class="fa-solid fa-tv me-1 text-warning"></i> TV Show</span>';
+
+          const releaseYear = item.release_date
+            ? item.release_date.substring(0, 4)
+            : "—";
+          const rating = item.rating ? Number(item.rating).toFixed(1) : "0.0";
+
+          let posterHTML = item.poster
+            ? `<img src="${item.poster}" class="movie-poster" alt="${item.title}" loading="lazy">`
+            : `<div class="no-poster"><i class="fa-solid fa-clapperboard fa-2x mb-2 opacity-50"></i><span class="small fw-semibold text-uppercase tracking-wider">No Poster</span></div>`;
+
+          cardCol.innerHTML = `
+            <div class="movie-card h-100 d-flex flex-column">
+              <div class="poster-container">
+                ${mediaTypeBadge}
+                ${posterHTML}
+              </div>
+              <div class="p-3 d-flex flex-column flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                  <h5 class="card-title-text text-truncate mb-0" title="${item.title}">${item.title}</h5>
+                  <span class="badge rating-badge flex-shrink-0"><i class="fa-solid fa-star me-1"></i>${rating}</span>
+                </div>
+                <div class="mb-2">
+                  <small class="text-info fw-medium"><i class="fa-regular fa-calendar-check me-1"></i>${releaseYear}</small>
+                </div>
+                <p class="overview-text mb-0 flex-grow-1">${item.overview || "No release summary details provided."}</p>
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-20">
+                  <button class="btn-read-more" onclick="viewLocalDetails('${item.type}_${item.id}')">
+                    Read Details <i class="fa-solid fa-angle-right ms-1 small"></i>
+                  </button>
+                  <button class="btn-remove-fav" onclick="removeLocalDailyItem('${item.type}', ${item.id})" title="Remove from Daily Watch">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+          dailyWatchGrid.appendChild(cardCol);
+        });
+      }
+
+      function processLocalCatalogFilter() {
+        const keyword = document
+          .getElementById("localFilterInput")
+          .value.toLowerCase()
+          .trim();
+        const selectedType = document.getElementById("typeFilterSelect").value;
+
+        let filtered = masterDailyWatchList;
+
+        if (selectedType !== "all") {
+          filtered = filtered.filter((item) => item.type === selectedType);
+        }
+
+        if (keyword) {
+          filtered = filtered.filter(
+            (item) => item.title && item.title.toLowerCase().includes(keyword),
+          );
+        }
+
+        calculateMetricsAndCounters(filtered);
+        renderDailyWatchCatalog(filtered);
+      }
+
+      window.removeLocalDailyItem = async function (mediaType, itemId) {
+        if (
+          !confirm(
+            "Are you sure you want to drop this item out of your daily watch pipeline?",
+          )
+        )
+          return;
+
+        hideAlert();
+
+        try {
+          const response = await fetch(
+            `${window.location.origin}/api/daily-watch/${mediaType}/${itemId}`,
+            {
+              method: "DELETE",
+            },
+          );
+
+          if (response.status === 404) {
+            showAlert(
+              "This item was not found in your daily storage matrix configuration. It might have already been removed.",
+            );
+            masterDailyWatchList = masterDailyWatchList.filter(
+              (i) => !(i.id === itemId && i.type === mediaType),
+            );
+            processLocalCatalogFilter();
+            return;
+          }
+
+          if (!response.ok) {
+            throw new Error(
+              "Unable to complete removal operations sequence inside core data layer.",
+            );
+          }
+
+          const data = await response.json();
+          if (data.success) {
+            masterDailyWatchList = masterDailyWatchList.filter(
+              (i) => !(i.id === itemId && i.type === mediaType),
+            );
+            processLocalCatalogFilter();
+          }
+        } catch (error) {
+          console.error("Deletion Anomaly:", error);
+          showAlert(
+            "A network interface discrepancy prevented processing database mutation adjustments. Try again.",
+          );
+        }
+      };
+
+      function showAlert(message) {
+        alertBannerText.textContent = message;
+        alertBanner.classList.remove("d-none");
+      }
+
+      // Hide functional layout errors
+      function hideAlert() {
+        alertBanner.classList.add("d-none");
+      }
+
+      window.viewLocalDetails = function (lookupKey) {
+        const target = masterDailyWatchList.find(
+          (i) => `${i.type}_${i.id}` === lookupKey,
+        );
+        if (!target) return;
+
+        document.getElementById("mediaDetailsModalLabel").textContent =
+          target.title;
+        document.getElementById("modalReleaseYear").textContent =
+          target.release_date ? target.release_date.substring(0, 4) : "—";
+        document.getElementById("modalRatingValue").textContent = target.rating
+          ? Number(target.rating).toFixed(1)
+          : "0.0";
+        document.getElementById("modalOverviewText").textContent =
+          target.overview || "No layout description parameters provided.";
+
+        document.getElementById("modalMediaTypeBadge").innerHTML =
+          target.type === "movie"
+            ? '<span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1"><i class="fa-solid fa-clapperboard me-1"></i> Movie</span>'
+            : '<span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1"><i class="fa-solid fa-tv me-1"></i> TV Show</span>';
+
+        const imgContainer = document.getElementById("modalPosterContainer");
+        if (target.poster) {
+          imgContainer.innerHTML = `<img src="${target.poster}" class="modal-poster-view" alt="${target.title}">`;
+        } else {
+          imgContainer.innerHTML = `
+            <div class="bg-dark rounded-3 d-flex flex-column align-items-center justify-content-center border border-secondary" style="height: 260px; color: var(--text-accent-muted);">
+              <i class="fa-solid fa-clapperboard fa-2x mb-2 opacity-40"></i><span class="small fw-semibold">No Poster</span>
+            </div>`;
+        }
+
+        detailsBootstrapModal.show();
+      };
+
+      document.addEventListener("DOMContentLoaded", syncDailyWatchDashboard);
+    </script>
+  </body>
+</html>

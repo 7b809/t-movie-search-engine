@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en)
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -280,6 +280,26 @@
         color: var(--text-accent-muted);
         opacity: 0.6;
       }
+      
+      /* ADDED NEW PERSISTENCE CONTROL CLASS FOR THE DUAL SCHEME BUTTONS */
+      .btn-save-daily {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #10b981;
+        background: transparent;
+        border: none;
+        padding: 0;
+        transition: all 0.2s ease;
+      }
+      .btn-save-daily:hover {
+        color: #34d399;
+        transform: scale(1.05);
+      }
+      .btn-save-daily:disabled {
+        color: var(--text-accent-muted);
+        opacity: 0.6;
+      }
+
       .results-title-section {
         font-weight: 700;
         letter-spacing: -0.5px;
@@ -364,13 +384,17 @@
           <i class="fa-solid fa-circle-play me-2 text-info"></i>CineDash Engine
         </a>
         <div class="d-flex align-items-center gap-3">
-          <a href="/" class="text-decoration-none text-white fs-7 me-2"
+          <a href="/" class="text-decoration-none text-info fs-7 fw-semibold"
             ><i class="fa-solid fa-magnifying-glass me-1 text-info"></i>
             Search</a
           >
-          <a href="/favorites" class="text-decoration-none text-info fs-7 me-3"
+          <a href="/favorites" class="text-decoration-none text-readable-body fs-7"
             ><i class="fa-solid fa-bookmark me-1 text-warning"></i> My
             Favorites</a
+          >
+          <!-- MODIFICATION: Added navigation channel for Daily Watch index -->
+          <a href="/daily-watch" class="text-decoration-none text-readable-body fs-7"
+            ><i class="fa-solid fa-calendar-day me-1 text-success"></i> Daily Watch</a
           >
           <span
             class="badge bg-dark border border-secondary text-info d-none d-sm-inline-block"
@@ -818,6 +842,7 @@
             ? `<img src="${item.poster}" class="movie-poster" alt="${item.title}" loading="lazy">`
             : `<div class="no-poster"><i class="fa-solid fa-clapperboard fa-2x mb-2 opacity-50"></i><span class="small fw-semibold text-uppercase tracking-wider">No Poster</span></div>`;
 
+          /* MODIFICATION: Updated button action panel to feature both Save Favorites and Save Daily tracking triggers */
           cardCol.innerHTML = `
             <div class="movie-card h-100 d-flex flex-column">
               <div class="poster-container">
@@ -833,13 +858,18 @@
                   <small class="text-info fw-medium"><i class="fa-regular fa-calendar-check me-1"></i>${releaseYear}</small>
                 </div>
                 <p class="overview-text mb-0 flex-grow-1">${item.overview || "No release summary details have been provided for this index item."}</p>
-                <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-10">
                   <button class="btn-read-more" onclick="launchDetailsPopup('${uniqueMemoryLookupKey}')">
-                    Read More <i class="fa-solid fa-angle-right ms-1 small"></i>
+                    Details <i class="fa-solid fa-angle-right ms-1 small"></i>
                   </button>
-                  <button class="btn-save-favorite" onclick="saveToFavorites('${uniqueMemoryLookupKey}', this)" title="Save to Favorites">
-                    <i class="fa-regular fa-bookmark me-1"></i>Save
-                  </button>
+                  <div class="d-flex gap-2">
+                    <button class="btn-save-favorite" onclick="saveToFavorites('${uniqueMemoryLookupKey}', this)" title="Save to Favorites">
+                      <i class="fa-regular fa-bookmark"></i>
+                    </button>
+                    <button class="btn-save-daily" onclick="saveToDailyWatch('${uniqueMemoryLookupKey}', this)" title="Save to Daily Watch">
+                      <i class="fa-regular fa-calendar-plus"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -853,9 +883,8 @@
         const item = loadedCatalogMemory.get(lookupKey);
         if (!item) return;
 
-        const originalContent = buttonElement.innerHTML;
         buttonElement.disabled = true;
-        buttonElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i>Saving...`;
+        buttonElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
 
         try {
           const payload = {
@@ -882,7 +911,7 @@
 
           const data = await response.json();
           if (data.success) {
-            buttonElement.innerHTML = `<i class="fa-solid fa-bookmark me-1 text-warning"></i>Saved`;
+            buttonElement.innerHTML = `<i class="fa-solid fa-bookmark text-warning"></i>`;
           } else {
             throw new Error(
               "Failed validation schema context processing parameters.",
@@ -891,7 +920,51 @@
         } catch (error) {
           console.error("Save Favorite anomaly detected: ", error);
           buttonElement.disabled = false;
-          buttonElement.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1 text-danger"></i>Retry`;
+          buttonElement.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-danger"></i>`;
+        }
+      }
+
+      // MODIFICATION: Added save execution handler targeted directly at the daily-watch cluster configuration API
+      async function saveToDailyWatch(lookupKey, buttonElement) {
+        const item = loadedCatalogMemory.get(lookupKey);
+        if (!item) return;
+
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+
+        try {
+          const payload = {
+            id: item.id,
+            type: item.type,
+            title: item.title,
+            overview: item.overview || "",
+            rating: item.rating || 0.0,
+            release_date: item.release_date || "",
+            poster: item.poster || "",
+          };
+
+          const response = await fetch(
+            `${window.location.origin}/api/daily-watch`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          );
+
+          if (!response.ok)
+            throw new Error("Fault handling daily backend connection pipeline.");
+
+          const data = await response.json();
+          if (data.success) {
+            buttonElement.innerHTML = `<i class="fa-solid fa-calendar-check text-success"></i>`;
+          } else {
+            throw new Error("Failed validation schema context handling.");
+          }
+        } catch (error) {
+          console.error("Save Daily Watch anomaly detected: ", error);
+          buttonElement.disabled = false;
+          buttonElement.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-danger"></i>`;
         }
       }
 

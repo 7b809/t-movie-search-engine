@@ -4,6 +4,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from app.api.daily_watch import router as daily_watch_router
 
 from app.api.search import router as search_router
 from app.api.favorites import router as favorites_router
@@ -57,6 +58,9 @@ async def read_favorites(request: Request):
     # Fixed the signature mismatch causing the unhashable dict type error
     return templates.TemplateResponse(request=request, name="favorites.html")
 
+@app.get("/daily-watch", response_class=HTMLResponse)
+async def read_daily_watch(request: Request):
+    return templates.TemplateResponse(request=request, name="daily_watch.html")
 
 # --------------------------------------------------
 # APIs Registration Blocks
@@ -74,6 +78,11 @@ app.include_router(
     tags=["Favorites"],
 )
 
+app.include_router(
+    daily_watch_router,
+    prefix="/api",
+    tags=["Daily Watch"],
+)
 # --------------------------------------------------
 # Local Run
 # --------------------------------------------------
